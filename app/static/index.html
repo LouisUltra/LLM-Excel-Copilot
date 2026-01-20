@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Excel Copilot | 智能数据助手</title>
+    <meta name="description" content="下一代 AI Excel 处理工具 - 智能、安全、高效">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#1e293b' }, // Custom darker slate
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body class="antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- Dynamic background is now handled by styles.css -->
+
+    <!-- App Container -->
+    <div class="min-h-screen flex flex-col p-4 md:p-8 max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center py-6 animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-blue-600/20 flex items-center justify-center border border-blue-500/30 text-blue-400">
+                    <i data-lucide="bot" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">
+                        <span class="text-gradient">Excel Copilot</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">AI 驱动的数据处理引擎</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div
+                    class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 text-xs text-slate-400">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                    <span>本地隐私安全</span>
+                </div>
+                <button id="btn-settings"
+                    class="glass-button w-10 h-10 rounded-full flex items-center justify-center text-blue-400"
+                    title="API 设置">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col gap-6 mt-4 relative">
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="w-full max-w-3xl mx-auto animate-fade-in"
+                style="animation-delay: 0.2s;">
+                <div id="upload-area"
+                    class="glass-panel rounded-2xl p-10 md:p-16 text-center border-dashed border-2 border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer group relative overflow-hidden">
+
+                    <div
+                        class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    </div>
+
+                    <div class="relative z-10 flex flex-col items-center gap-4">
+                        <div
+                            class="w-20 h-20 rounded-full bg-slate-800/50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="upload-cloud" class="w-10 h-10 text-blue-400"></i>
+                        </div>
+                        <h2 class="text-2xl font-semibold text-white">拖放 Excel 文件至此处</h2>
+                        <p class="text-slate-400">或者 <span
+                                class="text-blue-400 border-b border-blue-400/30 pb-0.5 group-hover:border-blue-400 transition-colors">点击选择文件</span>
+                        </p>
+                        <p
+                            class="text-xs text-slate-500 mt-2 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
+                            支持 .xlsx, .xls 格式 | 可选择多个文件</p>
+                    </div>
+                    <input type="file" id="file-input" accept=".xlsx,.xls" multiple hidden>
+                </div>
+
+                <!-- Uploaded Files List (for multi-file) -->
+                <div id="uploaded-files-list" class="hidden mt-6 space-y-3">
+                    <!-- 动态填充 -->
+                </div>
+
+                <!-- Action Buttons for Multi-file -->
+                <div id="multi-file-actions" class="hidden mt-4 flex gap-3 justify-center">
+                    <button id="btn-add-more-files"
+                        class="px-4 py-2 text-sm text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        继续添加文件
+                    </button>
+                    <button id="btn-start-processing"
+                        class="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                        开始处理
+                    </button>
+                </div>
+
+                <!-- Upload Progress -->
+                <div id="upload-progress" class="hidden mt-6 glass-panel rounded-xl p-6 max-w-md mx-auto">
+                    <div class="flex justify-between text-sm mb-2 text-slate-300">
+                        <span>正在上传...</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                        <div id="progress-fill" class="h-full bg-blue-500 rounded-full transition-all duration-300"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Info (Hidden by default) - Supports multiple files with carousel -->
+            <section id="file-info-section" class="hidden animate-fade-in w-full max-w-3xl mx-auto">
+                <div class="glass-panel rounded-xl p-5 mb-6">
+                    <!-- 多文件轮播容器 -->
+                    <div id="file-carousel" class="relative">
+                        <!-- 文件卡片容器 -->
+                        <div id="file-cards-container">
+                            <!-- 单个文件卡片模板 (动态生成) -->
+                            <div id="file-card-template" class="file-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                            <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <h3 id="file-name" class="font-semibold text-white text-lg">data.xlsx</h3>
+                                            <p id="file-summary" class="text-sm text-slate-400 font-mono mt-0.5">加载中...
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button id="btn-remove-file"
+                                        class="p-2 text-slate-500 hover:text-red-400 transition-colors" title="移除文件">
+                                        <i data-lucide="x" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <!-- 表头信息 -->
+                                <div id="file-headers-section" class="border-t border-slate-700/50 pt-4 mt-4">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <i data-lucide="columns" class="w-4 h-4 text-blue-400"></i>
+                                        <span class="text-sm font-medium text-slate-300">列信息</span>
+                                    </div>
+                                    <div id="file-headers" class="flex flex-wrap gap-2">
+                                        <!-- 动态填充 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 文件切换指示器 (多文件时显示) -->
+                        <div id="file-dots-nav"
+                            class="hidden flex justify-center gap-2 mt-4 pt-4 border-t border-slate-700/30">
+                            <!-- 动态生成小圆点 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat & Result Area (Hidden by default) -->
+            <div id="workspace-area"
+                class="hidden flex flex-col gap-6 w-full max-w-3xl mx-auto animate-fade-in items-center">
+
+                <!-- Chat Section (Left/Top) -->
+                <section id="chat-section" class="w-full flex flex-col gap-4 h-[600px]">
+                    <div class="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden border-slate-700/50">
+
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-white/5 bg-slate-900/30 flex justify-between items-center">
+                            <span class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-blue-400"></i>
+                                AI 助手
+                            </span>
+                            <span class="text-xs text-slate-500">基于您配置的模型</span>
+                        </div>
+
+                        <!-- Messages -->
+                        <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
+                            <!-- Welcome Message -->
+                            <div class="flex gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-blue-600/20 flex-shrink-0 flex items-center justify-center border border-blue-500/30">
+                                    <i data-lucide="bot" class="w-4 h-4 text-blue-400"></i>
+                                </div>
+                                <div class="glass-panel rounded-2xl rounded-tl-none p-4 max-w-[85%]">
+                                    <p class="text-sm text-slate-200">文件已加载！我想先确认一下您的处理需求。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="p-4 bg-slate-900/50 border-t border-white/5">
+                            <div class="flex items-center gap-2">
+                                <textarea id="user-input" rows="2"
+                                    class="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+                                    placeholder="描述您想如何处理这个表格..."></textarea>
+                                <button id="btn-send"
+                                    class="self-center p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Result/Actions Section (Right/Bottom) -->
+                <section id="result-section" class="w-full flex flex-col gap-4">
+
+                    <!-- Status Card -->
+                    <div class="glass-panel rounded-2xl p-6 hidden" id="status-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center animate-pulse-glow"
+                                id="status-icon-bg">
+                                <i data-lucide="loader" class="w-5 h-5 text-blue-400 animate-spin" id="status-icon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-white" id="status-title">正在思考...</h3>
+                                <p class="text-xs text-slate-400" id="status-desc">AI 正在分析您的需求</p>
+                            </div>
+                        </div>
+
+                        <!-- Progress/Steps -->
+                        <div class="space-y-3" id="steps-container">
+                            <!-- Steps rendered via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Actions Card -->
+                    <div class="glass-panel rounded-2xl p-6 border-slate-700/50 hidden" id="action-card">
+                        <h3 class="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">可用操作</h3>
+
+                        <div class="space-y-3">
+                            <button id="btn-download"
+                                class="w-full group glass-button bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium hidden">
+                                <i data-lucide="download"
+                                    class="w-4 h-4 group-hover:-translate-y-0.5 transition-transform"></i>
+                                下载处理结果
+                            </button>
+
+                            <button id="btn-continue"
+                                class="w-full glass-button text-blue-400 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium hidden">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                继续处理此文件
+                            </button>
+
+                            <button id="btn-new-task"
+                                class="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-slate-400 hover:bg-slate-800/50 transition-colors text-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                上传新文件
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-6 text-center text-xs text-slate-600">
+            <p>&copy; 2026 Excel Copilot</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay"
+        class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center flex-col gap-4">
+        <div class="loader"></div>
+        <p id="loading-text" class="text-sm text-slate-300 font-medium tracking-wide">处理中...</p>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal"
+        class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div
+            class="glass-panel w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-5 border-b border-white/5 bg-slate-800/30">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-blue-400"></i>
+                    API 配置管理
+                </h2>
+                <button id="btn-close-settings" class="text-slate-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <!-- Inner content similar to original but styled -->
+                <div class="space-y-6">
+                    <!-- Config List -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-medium text-slate-300">已保存配置</h3>
+                            <button id="btn-add-config"
+                                class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition-colors">
+                                + 添加配置
+                            </button>
+                        </div>
+                        <div id="configs-list" class="space-y-2 min-h-[100px]">
+                            <!-- Loading State -->
+                            <div class="text-center text-slate-500 py-4 text-sm">加载中...</div>
+                        </div>
+                    </div>
+
+                    <!-- Form (Hidden) -->
+                    <div id="config-form"
+                        class="hidden bg-slate-800/30 rounded-xl p-5 border border-white/5 animate-fade-in">
+                        <h3 id="form-title" class="text-sm font-medium text-white mb-4">添加新配置</h3>
+                        <input type="hidden" id="edit-config-id">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs text-slate-400">配置名称</label>
+                                <input type="text" id="config-name"
+                                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none"
+                                    placeholder="例如：GPT-5">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs text-slate-400">API 地址</label>
+                                <input type="text" id="config-api-base"
+                                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none"
+                                    placeholder="https://api.openai.com/v1">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 mb-4">
+                            <label class="text-xs text-slate-400">API Key</label>
+                            <input type="password" id="config-api-key"
+                                class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none"
+                                placeholder="sk-...">
+                        </div>
+
+                        <div class="space-y-1.5 mb-4">
+                            <label class="text-xs text-slate-400">模型</label>
+                            <div class="flex gap-2">
+                                <select id="config-model"
+                                    class="flex-1 bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+                                    <option value="">请先获取模型列表</option>
+                                </select>
+                                <button id="btn-fetch-models"
+                                    class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 rounded-lg border border-slate-600 transition-colors"
+                                    title="刷新模型">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 mb-6">
+                            <input type="checkbox" id="config-is-default"
+                                class="rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500/20">
+                            <label for="config-is-default" class="text-xs text-slate-400">设为默认配置</label>
+                        </div>
+
+                        <div class="flex gap-3 justify-end">
+                            <button id="btn-test-connection"
+                                class="px-3 py-2 text-xs text-slate-300 hover:text-white transition-colors">测试连接</button>
+                            <button id="btn-cancel-edit"
+                                class="px-4 py-2 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">取消</button>
+                            <button id="btn-save-config"
+                                class="px-4 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors">保存</button>
+                        </div>
+
+                        <div id="connection-status"
+                            class="mt-3 text-xs text-center hidden p-2 rounded bg-slate-800 border border-white/5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Init Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <!-- App Logic -->
+    <script src="/static/streaming.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

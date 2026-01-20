@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.serena/
+.shared/
+.agent/
+
+# Project specific
+uploads/*.xlsx
+uploads/*.xls
+outputs/*.xlsx
+backups/*.xlsx
+*.xlsx
+*.xls
+*.csv
+
+# Keep directory structure
+!uploads/.gitkeep
+!outputs/.gitkeep
+!backups/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# API configs (contains sensitive keys)
+api_configs.json
