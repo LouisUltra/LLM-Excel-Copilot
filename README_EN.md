@@ -24,7 +24,7 @@ LLM-Excel-Copilot is an intelligent Excel data analysis tool powered by Large La
 ## 🎬 Demo Video
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/your-video-id-here.mp4" controls="controls" width="800">
+  <video src="https://github.com/user-attachments/assets/b0a1a02a-c39f-4f1d-8843-17fb264a5bc3" controls="controls" width="800">
     您的浏览器不支持 video 标签。请升级浏览器或<a href="docs/videos/demo-full-workflow.mp4">点击下载视频</a>查看演示。
   </video>
 </p>  
