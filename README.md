@@ -24,7 +24,7 @@ LLM-Excel-Copilot 是一个基于大语言模型的智能 Excel 数据分析工�
 ## 🎬 演示视频
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/your-video-id-here.mp4" controls="controls" width="800">
+  <video src="https://github.com/LouisUltra/LLM-Excel-Copilot/blob/main/docs/videos/demo-full-workflow.mp4" controls="controls" width="800">
     您的浏览器不支持 video 标签。请升级浏览器或<a href="docs/videos/demo-full-workflow.mp4">点击下载视频</a>查看演示。
   </video>
 </p>
